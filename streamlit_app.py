@@ -30,7 +30,7 @@ def main():
     @st.cache
     def get_sk_id_list(df):
         # SK_IDS = df['SK_ID_CURR'].sample(1000).tolist()
-        SK_IDS= df.sample(1000)['SK_ID_CURR'].tolist()
+        SK_IDS= df['SK_ID_CURR'].tolist()
         return SK_IDS
 
     @st.cache
