@@ -154,7 +154,7 @@ def main():
     # Display the logo in the sidebar
     st.sidebar.image('logo.svg', width=180)
 
-    filename = file_selector('./data/HomeCredit_columns_description.csv')
+    filename = file_selector('./data/')
     error_flag = 0
     df = pd.read_csv(filename)
 
