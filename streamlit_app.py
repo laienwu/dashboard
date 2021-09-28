@@ -21,7 +21,7 @@ def main():
     # URL = r"D:\Users\laien\Documents\openClassRoom\P7_WU_laien\dashboard"
     URL='.'
     @st.cache(suppress_st_warning=True)
-    def file_selector(folder_path=URL):
+    def file_selector(folder_path):
         filenames = os.listdir(folder_path)
         filenames = [filename for filename in filenames if filename.endswith(".csv")]
         selected_filename = st.selectbox('Select your data', filenames)
@@ -154,7 +154,7 @@ def main():
     # Display the logo in the sidebar
     st.sidebar.image('logo.svg', width=180)
 
-    filename = file_selector()
+    filename = file_selector('./data')
     error_flag = 0
     df = pd.read_csv(filename)
 
