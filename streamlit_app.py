@@ -156,7 +156,7 @@ def main():
 
     filename = file_selector('./data/')
     error_flag = 0
-    df = pd.read_csv(filename)
+    df = pd.read_csv(filename,encoding="utf-8")
 
     clf = get_model(URL + '/models/clf_model.pickle')
 
