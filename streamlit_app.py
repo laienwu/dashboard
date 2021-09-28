@@ -167,7 +167,7 @@ def main():
     y_train = df_short['TARGET']
 
     select_sk_id = st.sidebar.selectbox("Select SK_ID from list for a show : ", SK_IDS)
-
+    st.write(df["SK_ID_CURR"].values)
     if select_sk_id == 'Overview':
         pass
         if st.sidebar.checkbox("Features importances", key="29"):
