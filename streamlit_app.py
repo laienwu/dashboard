@@ -18,8 +18,8 @@ import matplotlib.pyplot as plt
 
 
 def main():
-    URL = r"D:\Users\laien\Documents\openClassRoom\P7_WU_laien\dashboard"
-
+    # URL = r"D:\Users\laien\Documents\openClassRoom\P7_WU_laien\dashboard"
+    URL='.'
     @st.cache(suppress_st_warning=True)
     def file_selector(folder_path=URL):
         filenames = os.listdir(folder_path)
@@ -35,7 +35,7 @@ def main():
 
     @st.cache
     def get_features_description():
-        tmp = pd.read_csv(URL + '\data\HomeCredit_columns_description.csv', encoding='unicode_escape')
+        tmp = pd.read_csv(URL + '/data/HomeCredit_columns_description.csv', encoding='unicode_escape')
         tmp = tmp.rename(columns={'Row': 'Features'})
         return tmp[['Features', 'Description']]
 
@@ -158,7 +158,7 @@ def main():
     error_flag = 0
     df = pd.read_csv(filename)
 
-    clf = get_model(URL + '\models\clf_model.pickle')
+    clf = get_model(URL + '/models/clf_model.pickle')
 
     # SK_IDS = ['Overview'] + random.sample(get_sk_id_list(df), 20)
     SK_IDS = ['Overview'] + get_sk_id_list(df)
@@ -170,156 +170,156 @@ def main():
 
     if select_sk_id == 'Overview':
         pass
-        # if st.sidebar.checkbox("Features importances", key="29"):
-        #     tmp = pd.get_dummies(X_train)
-        #     model = xgboost.XGBClassifier().fit(tmp, y_train)
-        #     explainer = shap.Explainer(model, tmp)
-        #     shap_values = explainer(tmp)
-        #
-        #     with st.spinner('Plot creation in progress...'):
-        #         st.header("Graphique de l'importance des features")
-        #
-        #         fig, axes = plt.subplots()
-        #         shap.summary_plot(shap_values, tmp, plot_type='bar')
-        #         st.pyplot(fig)
-        #
-        #         st.header("Shape values des features")
-        #         fig, axes = plt.subplots()
-        #         # compute SHAP values
-        #         explainer = shap.Explainer(model, tmp)
-        #         shap_values = explainer(tmp)
-        #         shap.summary_plot(shap_values, tmp)
-        #         st.pyplot(fig)
-        #
-        # if st.sidebar.checkbox('Features description', key="a"):
-        #     st.markdown("## Features descriptions")
-        #     tmp = get_features_description()
-        #     feature = st.selectbox("list of features: ,", tmp['Features'].tolist(), key="11")
-        #     st.table(tmp[tmp['Features'] == feature])
-        #
-        #     if st.checkbox('show full list', key="12"):
-        #         st.table(tmp)
-        # else:
-        #     df['DAYS_BIRTH'] = abs(df['DAYS_BIRTH'])
-        #     st.markdown('### AGE: ')
-        #     st.markdown("L'âge du client")
-        #     fig, axes = plt.subplots()
-        #     sns.kdeplot(df.loc[df['TARGET'] == 0, 'DAYS_BIRTH'] / 365, label='No default risks')
-        #     sns.kdeplot(df.loc[df['TARGET'] == 1, 'DAYS_BIRTH'] / 365, label='Default risks')
-        #     plt.xlabel('Age (années)')
-        #     plt.ylabel('Densité')
-        #     plt.title('Distribution des âges')
-        #     plt.legend()
-        #     st.pyplot(fig)
-        #
-        #     if st.checkbox('show analysis', key="0"):
-        #         st.markdown('#### Analysis')
-        #         st.markdown('* Client having age  less than 40 have high probability of being default. ')
-        #         st.markdown('* Client having age  greater than 40 have high probability of repaying loan.')
-        #         st.markdown('* There is a visible sepration between two classes.')
-        #         st.markdown('#### Conclusion')
-        #         st.markdown('Younger clients are more likely to default as compared to older.')
-        #
-        #     plt.figure(figsize=(8, 8))
-        #
-        #     st.markdown("### Défaut de paiement des prêts selon les catégories d'âges")
-        #
-        #     age_data = df[['TARGET', 'DAYS_BIRTH']]
-        #     age_data['YEARS_BIRTH'] = age_data['DAYS_BIRTH'] / 365
-        #     age_data['YEARS_BINNED'] = pd.cut(age_data['YEARS_BIRTH'], bins=np.linspace(20, 70, num=11))
-        #     age_groups = age_data.groupby('YEARS_BINNED').mean()
-        #
-        #     fig, axes = plt.subplots()
-        #
-        #     plt.bar(age_groups.index.astype(str), 100 * age_groups['TARGET'])
-        #
-        #     # Plot labeling
-        #     plt.xticks(rotation=75)
-        #     plt.xlabel('Age Group (years)')
-        #     plt.ylabel('Failure to Repay (%)')
-        #     plt.title('Failure to Repay by Age Group')
-        #     st.pyplot(fig)
-        #
-        #     if st.checkbox('show analysis', key="1"):
-        #         st.markdown('#### Analysis')
-        #         st.markdown(
-        #             "Le graphique montrent un risque bien supérieur chez les demandeurs de prêt dans les catégories d'âge jeunes.")
-        #
-        #     st.markdown('### EXT_SOURCE_3: ')
-        #     st.markdown('Normalized score from external data source.')
-        #     fig, axes = plt.subplots()
-        #     axes.set_xlabel('EXT_SOURCE_3')
-        #     axes.set_ylabel('Density')
-        #     sns.kdeplot(df.loc[df['TARGET'] == 0, 'EXT_SOURCE_3'], label='No default risks')
-        #     sns.kdeplot(df.loc[df['TARGET'] == 1, 'EXT_SOURCE_3'], label='Default risks')
-        #     plt.legend()
-        #     st.pyplot(fig)
-        #
-        #     if st.checkbox('show analysis', key="2"):
-        #         st.markdown('#### Analysis')
-        #         st.markdown('* External source 3 < 0.4 indicate high probability that client Default risks loan.')
-        #         st.markdown(
-        #             '* (External source 3 > 0.5 and External source 3 < 0.9) indicate high probability that client No default risks loan.')
-        #         st.markdown('* There is a visible sepration between two classes.')
-        #
-        #         st.markdown('#### Conclusion')
-        #         st.markdown('* External source 3 is a useful feature.')
-        #
-        #     st.markdown('### AMT_ANNUITY: ')
-        #     st.markdown(
-        #         'Annuities are basically loans that are paid back over a set period of time at a set interest rate with consistent payments each period.')
-        #     fig, axes = plt.subplots()
-        #     axes.set_xlabel('AMT_ANNUITY')
-        #     axes.set_ylabel('Density')
-        #     sns.kdeplot(df.loc[(df['TARGET'] == 0) & (df['AMT_ANNUITY'] < (100000)), 'AMT_ANNUITY'],
-        #                 label='No default risks')
-        #     sns.kdeplot(df.loc[(df['TARGET'] == 1) & (df['AMT_ANNUITY'] < (100000)), 'AMT_ANNUITY'],
-        #                 label='Default risks')
-        #     plt.legend()
-        #     st.pyplot(fig)
-        #
-        #     if st.checkbox('show analysis', key="3"):
-        #         st.markdown('#### Analysis')
-        #         st.markdown('* Amount less than 10000 there is more chance that client No default risks.')
-        #         st.markdown(
-        #             '* Amount between 20000 to 40000 shows a slight high probability that client Default risks loan.')
-        #         st.markdown(
-        #             '* Amount greater than 40000 but less than 80000 shows a slight high probability that loan will be repayed.')
-        #         st.markdown('* There is a visible sepration between two classes.')
-        #
-        #         st.markdown('#### Conclusion')
-        #         st.markdown('* Amount Annuity is a useful feature.')
-        #
-        #     st.markdown("### D'autres graphiques de description générale")
-        #
-        #     app_train_domain = df.copy()
-        #
-        #     app_train_domain['CREDIT_INCOME_PERCENT'] = app_train_domain['AMT_CREDIT'] / app_train_domain[
-        #         'AMT_INCOME_TOTAL']
-        #     app_train_domain['ANNUITY_INCOME_PERCENT'] = app_train_domain['AMT_ANNUITY'] / app_train_domain[
-        #         'AMT_INCOME_TOTAL']
-        #     app_train_domain['CREDIT_TERM'] = app_train_domain['AMT_ANNUITY'] / app_train_domain['AMT_CREDIT']
-        #     app_train_domain['DAYS_EMPLOYED_PERCENT'] = app_train_domain['DAYS_EMPLOYED'] / app_train_domain[
-        #         'DAYS_BIRTH']
-        #
-        #     plt.figure(figsize=(6, 20))
-        #     # iterate through the new features
-        #     for i, feature in enumerate(
-        #             ['CREDIT_INCOME_PERCENT', 'ANNUITY_INCOME_PERCENT', 'CREDIT_TERM', 'DAYS_EMPLOYED_PERCENT']):
-        #         # create a new subplot for each source
-        #         plt.subplot(4, 1, i + 1)
-        #         # plot repaid loans
-        #         sns.kdeplot(app_train_domain.loc[app_train_domain['TARGET'] == 0, feature])
-        #         # plot loans that were not repaid
-        #         sns.kdeplot(app_train_domain.loc[app_train_domain['TARGET'] == 1, feature])
-        #
-        #         # Label the plots
-        #         plt.title('Distribution of %s by Target Value' % feature)
-        #         plt.xlabel('%s' % feature)
-        #         plt.ylabel('Density')
-        #
-        #     plt.tight_layout(h_pad=2.5)
-        #     st.pyplot(plt)
+        if st.sidebar.checkbox("Features importances", key="29"):
+            tmp = pd.get_dummies(X_train)
+            model = xgboost.XGBClassifier().fit(tmp, y_train)
+            explainer = shap.Explainer(model, tmp)
+            shap_values = explainer(tmp)
+
+            with st.spinner('Plot creation in progress...'):
+                st.header("Graphique de l'importance des features")
+
+                fig, axes = plt.subplots()
+                shap.summary_plot(shap_values, tmp, plot_type='bar')
+                st.pyplot(fig)
+
+                st.header("Shape values des features")
+                fig, axes = plt.subplots()
+                # compute SHAP values
+                explainer = shap.Explainer(model, tmp)
+                shap_values = explainer(tmp)
+                shap.summary_plot(shap_values, tmp)
+                st.pyplot(fig)
+
+        if st.sidebar.checkbox('Features description', key="a"):
+            st.markdown("## Features descriptions")
+            tmp = get_features_description()
+            feature = st.selectbox("list of features: ,", tmp['Features'].tolist(), key="11")
+            st.table(tmp[tmp['Features'] == feature])
+
+            if st.checkbox('show full list', key="12"):
+                st.table(tmp)
+        else:
+            df['DAYS_BIRTH'] = abs(df['DAYS_BIRTH'])
+            st.markdown('### AGE: ')
+            st.markdown("L'âge du client")
+            fig, axes = plt.subplots()
+            sns.kdeplot(df.loc[df['TARGET'] == 0, 'DAYS_BIRTH'] / 365, label='No default risks')
+            sns.kdeplot(df.loc[df['TARGET'] == 1, 'DAYS_BIRTH'] / 365, label='Default risks')
+            plt.xlabel('Age (années)')
+            plt.ylabel('Densité')
+            plt.title('Distribution des âges')
+            plt.legend()
+            st.pyplot(fig)
+
+            if st.checkbox('show analysis', key="0"):
+                st.markdown('#### Analysis')
+                st.markdown('* Client having age  less than 40 have high probability of being default. ')
+                st.markdown('* Client having age  greater than 40 have high probability of repaying loan.')
+                st.markdown('* There is a visible sepration between two classes.')
+                st.markdown('#### Conclusion')
+                st.markdown('Younger clients are more likely to default as compared to older.')
+
+            plt.figure(figsize=(8, 8))
+
+            st.markdown("### Défaut de paiement des prêts selon les catégories d'âges")
+
+            age_data = df[['TARGET', 'DAYS_BIRTH']]
+            age_data['YEARS_BIRTH'] = age_data['DAYS_BIRTH'] / 365
+            age_data['YEARS_BINNED'] = pd.cut(age_data['YEARS_BIRTH'], bins=np.linspace(20, 70, num=11))
+            age_groups = age_data.groupby('YEARS_BINNED').mean()
+
+            fig, axes = plt.subplots()
+
+            plt.bar(age_groups.index.astype(str), 100 * age_groups['TARGET'])
+
+            # Plot labeling
+            plt.xticks(rotation=75)
+            plt.xlabel('Age Group (years)')
+            plt.ylabel('Failure to Repay (%)')
+            plt.title('Failure to Repay by Age Group')
+            st.pyplot(fig)
+
+            if st.checkbox('show analysis', key="1"):
+                st.markdown('#### Analysis')
+                st.markdown(
+                    "Le graphique montrent un risque bien supérieur chez les demandeurs de prêt dans les catégories d'âge jeunes.")
+
+            st.markdown('### EXT_SOURCE_3: ')
+            st.markdown('Normalized score from external data source.')
+            fig, axes = plt.subplots()
+            axes.set_xlabel('EXT_SOURCE_3')
+            axes.set_ylabel('Density')
+            sns.kdeplot(df.loc[df['TARGET'] == 0, 'EXT_SOURCE_3'], label='No default risks')
+            sns.kdeplot(df.loc[df['TARGET'] == 1, 'EXT_SOURCE_3'], label='Default risks')
+            plt.legend()
+            st.pyplot(fig)
+
+            if st.checkbox('show analysis', key="2"):
+                st.markdown('#### Analysis')
+                st.markdown('* External source 3 < 0.4 indicate high probability that client Default risks loan.')
+                st.markdown(
+                    '* (External source 3 > 0.5 and External source 3 < 0.9) indicate high probability that client No default risks loan.')
+                st.markdown('* There is a visible sepration between two classes.')
+
+                st.markdown('#### Conclusion')
+                st.markdown('* External source 3 is a useful feature.')
+
+            st.markdown('### AMT_ANNUITY: ')
+            st.markdown(
+                'Annuities are basically loans that are paid back over a set period of time at a set interest rate with consistent payments each period.')
+            fig, axes = plt.subplots()
+            axes.set_xlabel('AMT_ANNUITY')
+            axes.set_ylabel('Density')
+            sns.kdeplot(df.loc[(df['TARGET'] == 0) & (df['AMT_ANNUITY'] < (100000)), 'AMT_ANNUITY'],
+                        label='No default risks')
+            sns.kdeplot(df.loc[(df['TARGET'] == 1) & (df['AMT_ANNUITY'] < (100000)), 'AMT_ANNUITY'],
+                        label='Default risks')
+            plt.legend()
+            st.pyplot(fig)
+
+            if st.checkbox('show analysis', key="3"):
+                st.markdown('#### Analysis')
+                st.markdown('* Amount less than 10000 there is more chance that client No default risks.')
+                st.markdown(
+                    '* Amount between 20000 to 40000 shows a slight high probability that client Default risks loan.')
+                st.markdown(
+                    '* Amount greater than 40000 but less than 80000 shows a slight high probability that loan will be repayed.')
+                st.markdown('* There is a visible sepration between two classes.')
+
+                st.markdown('#### Conclusion')
+                st.markdown('* Amount Annuity is a useful feature.')
+
+            st.markdown("### D'autres graphiques de description générale")
+
+            app_train_domain = df.copy()
+
+            app_train_domain['CREDIT_INCOME_PERCENT'] = app_train_domain['AMT_CREDIT'] / app_train_domain[
+                'AMT_INCOME_TOTAL']
+            app_train_domain['ANNUITY_INCOME_PERCENT'] = app_train_domain['AMT_ANNUITY'] / app_train_domain[
+                'AMT_INCOME_TOTAL']
+            app_train_domain['CREDIT_TERM'] = app_train_domain['AMT_ANNUITY'] / app_train_domain['AMT_CREDIT']
+            app_train_domain['DAYS_EMPLOYED_PERCENT'] = app_train_domain['DAYS_EMPLOYED'] / app_train_domain[
+                'DAYS_BIRTH']
+
+            plt.figure(figsize=(6, 20))
+            # iterate through the new features
+            for i, feature in enumerate(
+                    ['CREDIT_INCOME_PERCENT', 'ANNUITY_INCOME_PERCENT', 'CREDIT_TERM', 'DAYS_EMPLOYED_PERCENT']):
+                # create a new subplot for each source
+                plt.subplot(4, 1, i + 1)
+                # plot repaid loans
+                sns.kdeplot(app_train_domain.loc[app_train_domain['TARGET'] == 0, feature])
+                # plot loans that were not repaid
+                sns.kdeplot(app_train_domain.loc[app_train_domain['TARGET'] == 1, feature])
+
+                # Label the plots
+                plt.title('Distribution of %s by Target Value' % feature)
+                plt.xlabel('%s' % feature)
+                plt.ylabel('Density')
+
+            plt.tight_layout(h_pad=2.5)
+            st.pyplot(plt)
 
     else:
 
