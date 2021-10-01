@@ -156,8 +156,8 @@ def main():
 
     error_flag = 0
     # df = pd.read_pickle('./data/shorted_data.pickle')
-    # filename = file_selector('./data/shorted_data.csv')
-    df = pd.read_csv('./data/shorted_data.csv')
+    filename = file_selector('./data/shorted_data.csv')
+    df = pd.read_csv(filename)
     st.write(df.columns)
     clf = get_model(URL + '/models/clf_model.pickle')
 
