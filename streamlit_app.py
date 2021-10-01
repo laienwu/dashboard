@@ -18,7 +18,6 @@ def main():
     # URL = r"D:\Users\laien\Documents\openClassRoom\P7_WU_laien\dashboard"
     URL = '.'
 
-    @st.cache
     def file_selector(folder_path):
         filenames = os.listdir(folder_path)
         filenames = [filename for filename in filenames if filename.endswith(".csv")]
