@@ -1,26 +1,24 @@
-import streamlit as st
+import os
+
+import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
-import os
 import seaborn as sns
 import shap
-from sklearn.neighbors import NearestNeighbors
-from sklearn.impute import SimpleImputer
-from sklearn.feature_selection import SelectFromModel
-from sklearn.feature_selection._base import SelectorMixin
-from sklearn.feature_extraction.text import _VectorizerMixin
-
-from imblearn.under_sampling import EditedNearestNeighbours
+import streamlit as st
+import xgboost as xgboost
 from imblearn.pipeline import Pipeline
 from scipy.special import expit
-from lightgbm import LGBMClassifier
-import matplotlib.pyplot as plt
+from sklearn.feature_extraction.text import _VectorizerMixin
+from sklearn.feature_selection._base import SelectorMixin
+from sklearn.neighbors import NearestNeighbors
 
 
 def main():
     # URL = r"D:\Users\laien\Documents\openClassRoom\P7_WU_laien\dashboard"
-    URL='.'
-    @st.cache(suppress_st_warning=True)
+    URL = '.'
+
+    @st.cache
     def file_selector(folder_path):
         filenames = os.listdir(folder_path)
         filenames = [filename for filename in filenames if filename.endswith(".csv")]
@@ -30,7 +28,7 @@ def main():
     @st.cache
     def get_sk_id_list(df):
         # SK_IDS = df['SK_ID_CURR'].sample(1000).tolist()
-        SK_IDS= df['SK_ID_CURR'].tolist()
+        SK_IDS = df['SK_ID_CURR'].tolist()
         return SK_IDS
 
     @st.cache
@@ -329,7 +327,7 @@ def main():
         st.markdown("#### Les données du client")
 
         st.table(df_short[df_short['SK_ID_CURR'] == select_sk_id])
-        tmp=df_short[df_short['SK_ID_CURR'] == select_sk_id]
+        tmp = df_short[df_short['SK_ID_CURR'] == select_sk_id]
         X_data = tmp.drop(columns=['TARGET', 'SK_ID_CURR'])
         X_idx = df_short.index.get_loc(tmp.index[0])
         default_prob = round(clf.predict_proba(X_data)[:, 1][0] * 100, 2)
@@ -359,8 +357,8 @@ def main():
             features_sel = X_tr_featsel
             target_sel = y_train
 
-            features_cust = features_sel.iloc[X_idx: X_idx+1]
-            target_cust = y_train.iloc[X_idx: X_idx+1]
+            features_cust = features_sel.iloc[X_idx: X_idx + 1]
+            target_cust = y_train.iloc[X_idx: X_idx + 1]
 
             neigh = NearestNeighbors(n_neighbors=20)
             neigh.fit(features_sel)
@@ -381,7 +379,7 @@ def main():
             X_neigh = X_tr_featsel.iloc[nearest_cust_idx]
             y_neigh = y_train.iloc[nearest_cust_idx].replace({0: 'repaid (neighbors)',
                                                               1: 'not repaid (neighbors)'})
-            X_cust = X_tr_featsel.iloc[X_idx: X_idx+1]
+            X_cust = X_tr_featsel.iloc[X_idx: X_idx + 1]
             main_cols = ['EXT_SOURCE_2', 'EXT_SOURCE_3', 'AMT_CREDIT', 'DAYS_BIRTH', 'EXT_SOURCE_1', 'CODE_GENDER_F',
                          'AMT_ANNUITY']
 
@@ -432,8 +430,10 @@ def main():
             # # shap.force_plot(explainer.expected_value, shap_values(X_idx), X_tr_featsel.iloc[[X_idx]])
             # st.pyplot(fig)
 
-            fig, axes=plt.subplots()
+            fig, axes = plt.subplots()
             shap.plots.waterfall(shap_values_Model[X_idx])
             st.pyplot(fig)
+
+
 if __name__ == '__main__':
     main()
