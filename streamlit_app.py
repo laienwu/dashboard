@@ -154,10 +154,10 @@ def main():
     # Display the logo in the sidebar
     st.sidebar.image('logo.svg', width=180)
 
-    # filename = file_selector('./data/')
     error_flag = 0
-    df = pd.read_pickle('./data/shorted_data.pickle')
-    # df = pd.read_csv(filename, engin="python")
+    # df = pd.read_pickle('./data/shorted_data.pickle')
+    # filename = file_selector('./data/shorted_data.csv')
+    df = pd.read_csv('./data/shorted_data.csv')
     st.write(df.columns)
     clf = get_model(URL + '/models/clf_model.pickle')
 
