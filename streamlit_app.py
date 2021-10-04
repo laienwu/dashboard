@@ -380,56 +380,56 @@ def main():
             main_cols = ['EXT_SOURCE_2', 'EXT_SOURCE_3', 'AMT_CREDIT', 'DAYS_BIRTH', 'EXT_SOURCE_1', 'CODE_GENDER_F',
                          'AMT_ANNUITY']
 
-            st.header("Boxplot des principaux features et leur dispersions")
-            fig, axes = plt.subplots()
-            st.write(X_cust)
-            plot_boxplot_var_by_target(X_tr_featsel, y_all, X_neigh, y_neigh, X_cust,
-                                       main_cols, figsize=(15, 4))
-            st.pyplot(fig)
+            # st.header("Boxplot des principaux features et leur dispersions")
+            # fig, axes = plt.subplots()
+            # st.write(X_cust)
+            # plot_boxplot_var_by_target(X_tr_featsel, y_all, X_neigh, y_neigh, X_cust,
+            #                            main_cols, figsize=(15, 4))
+            # st.pyplot(fig)
 
-            st.header("Shap analyse (local)")
-
-            explainer = shap.TreeExplainer(clf_step)
-            X_cust_neigh = pd.concat([X_neigh,
-                                      X_cust.to_frame(customer_idx).T],
-                                     axis=0)
-
-            shap_val_neigh = explainer.shap_values(X_cust_neigh)
-            expected_value = explainer.expected_value[1]
-
-            shap_values = shap_val_neigh
-
-            # vals= np.abs(shap_values).mean(0)
-            vals = np.abs(shap_values[1]).mean(0)
-
-            feat_imp = pd.DataFrame(list(zip(X_cust_neigh.columns, vals)),
-                                    columns=['col_name', 'feature_imp']) \
-                .sort_values(by=['feature_imp'], ascending=False)
-
-            most_imp_10_cols = feat_imp.iloc[:10]['col_name'].values
-            shap_values_trans, expected_value_trans = \
-                shap_transform_scale(shap_values=explainer.shap_values(X_cust_neigh)[1][-1],
-                                     expected_value=explainer.expected_value[1],
-                                     model_prediction=clf_step.predict_proba(X_cust_neigh)[:, 1][-1])
-            shap.plots._waterfall.waterfall_legacy(expected_value_trans,  # expected_value,
-                                                   shap_values_trans,  # shap_values[1][-1],
-                                                   X_cust_neigh.values.reshape(-1),
-                                                   feature_names=X_neigh.columns,
-                                                   max_display=10, show=False)
-            plt.gcf().set_size_inches((14, 6))
-            plt.show()
+            # st.header("Shap analyse (local)")
+            #
+            # explainer = shap.TreeExplainer(clf_step)
+            # X_cust_neigh = pd.concat([X_neigh,
+            #                           X_cust.to_frame(customer_idx).T],
+            #                          axis=0)
+            #
+            # shap_val_neigh = explainer.shap_values(X_cust_neigh)
+            # expected_value = explainer.expected_value[1]
+            #
+            # shap_values = shap_val_neigh
+            #
+            # # vals= np.abs(shap_values).mean(0)
+            # vals = np.abs(shap_values[1]).mean(0)
+            #
+            # feat_imp = pd.DataFrame(list(zip(X_cust_neigh.columns, vals)),
+            #                         columns=['col_name', 'feature_imp']) \
+            #     .sort_values(by=['feature_imp'], ascending=False)
+            #
+            # most_imp_10_cols = feat_imp.iloc[:10]['col_name'].values
+            # shap_values_trans, expected_value_trans = \
+            #     shap_transform_scale(shap_values=explainer.shap_values(X_cust_neigh)[1][-1],
+            #                          expected_value=explainer.expected_value[1],
+            #                          model_prediction=clf_step.predict_proba(X_cust_neigh)[:, 1][-1])
+            # shap.plots._waterfall.waterfall_legacy(expected_value_trans,  # expected_value,
+            #                                        shap_values_trans,  # shap_values[1][-1],
+            #                                        X_cust_neigh.values.reshape(-1),
+            #                                        feature_names=X_neigh.columns,
+            #                                        max_display=10, show=False)
+            # plt.gcf().set_size_inches((14, 6))
+            # plt.show()
             explainerModel = shap.TreeExplainer(clf_step, X_tr_featsel)
             shap_values_Model = explainerModel.shap_values(X_tr_featsel)
             st.write("##", X_idx)
-            # fig, axes = plt.subplots()
-
-            # shap.force_plot(explainerModel.expected_value, shap_values_Model[X_idx], X_tr_featsel.iloc[[X_idx]])
-            # # shap.force_plot(explainer.expected_value, shap_values(X_idx), X_tr_featsel.iloc[[X_idx]])
-            # st.pyplot(fig)
-
             fig, axes = plt.subplots()
-            shap.plots.waterfall(shap_values_Model[X_idx])
+
+            shap.force_plot(explainerModel.expected_value, shap_values_Model[X_idx], X_tr_featsel.iloc[[X_idx]])
+            # shap.force_plot(explainer.expected_value, shap_values(X_idx), X_tr_featsel.iloc[[X_idx]])
             st.pyplot(fig)
+            #
+            # fig, axes = plt.subplots()
+            # shap.plots.waterfall(shap_values_Model[X_idx])
+            # st.pyplot(fig)
 
 
 if __name__ == '__main__':
