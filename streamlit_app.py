@@ -342,100 +342,105 @@ def main():
             st.markdown("## **Ne pas accorder le prêt**")
 
         if st.checkbox("Détails d'analyse", key="22"):
-            preproc_step = clf.named_steps['col_trans']
-            featsel_step = clf.named_steps['feat_select']
-            clf_step = clf.named_steps['reg']
+            with st.spinner("Analyse détaillée en progression..."):
+                preproc_step = clf.named_steps['col_trans']
+                featsel_step = clf.named_steps['feat_select']
+                clf_step = clf.named_steps['reg']
 
-            X_tr_prepro = preproc_step.transform(X_train)
-            X_tr_prepro_df = pd.DataFrame(X_tr_prepro,
-                                          index=X_train.index,
-                                          columns=get_ct_feature_names(preproc_step))
-            preproc_cols = X_tr_prepro_df.columns
-            featsel_cols = preproc_cols[featsel_step.get_support()]
-            X_tr_featsel = X_tr_prepro_df[featsel_cols]
+                X_tr_prepro = preproc_step.transform(X_train)
+                X_tr_prepro_df = pd.DataFrame(X_tr_prepro,
+                                              index=X_train.index,
+                                              columns=get_ct_feature_names(preproc_step))
+                preproc_cols = X_tr_prepro_df.columns
+                featsel_cols = preproc_cols[featsel_step.get_support()]
+                X_tr_featsel = X_tr_prepro_df[featsel_cols]
 
-            clf_step.fit(X_tr_featsel, y_train)
+                clf_step.fit(X_tr_featsel, y_train)
 
-            features_sel = X_tr_featsel
-            target_sel = y_train
+                features_sel = X_tr_featsel
+                target_sel = y_train
 
-            features_cust = features_sel.iloc[X_idx: X_idx + 1]
-            target_cust = y_train.iloc[X_idx: X_idx + 1]
+                features_cust = features_sel.iloc[X_idx: X_idx + 1]
+                target_cust = y_train.iloc[X_idx: X_idx + 1]
 
-            neigh = NearestNeighbors(n_neighbors=20)
-            neigh.fit(features_sel)
+                neigh = NearestNeighbors(n_neighbors=20)
+                neigh.fit(features_sel)
 
-            nearest_cust_idx = neigh.kneighbors(X=features_cust,
-                                                n_neighbors=20,
-                                                return_distance=False).ravel()
+                nearest_cust_idx = neigh.kneighbors(X=features_cust,
+                                                    n_neighbors=20,
+                                                    return_distance=False).ravel()
 
-            # features of neighbors
-            features_neigh = features_sel.iloc[nearest_cust_idx]
-            target_neigh = y_train.iloc[nearest_cust_idx]
-            # features of customers and neighbors
-            features_neigh_ = pd.concat([features_neigh, features_cust], axis=0)
-            target_neigh_ = y_train.loc[features_neigh_.index]
+                # features of neighbors
+                features_neigh = features_sel.iloc[nearest_cust_idx]
+                target_neigh = y_train.iloc[nearest_cust_idx]
+                # features of customers and neighbors
+                features_neigh_ = pd.concat([features_neigh, features_cust], axis=0)
+                target_neigh_ = y_train.loc[features_neigh_.index]
 
-            y_all = y_train.replace({0: 'repaid (global)',
-                                     1: 'not repaid (global)'})
-            X_neigh = X_tr_featsel.iloc[nearest_cust_idx]
-            y_neigh = y_train.iloc[nearest_cust_idx].replace({0: 'repaid (neighbors)',
-                                                              1: 'not repaid (neighbors)'})
-            X_cust = X_tr_featsel.iloc[X_idx: X_idx + 1]
-            main_cols = ['EXT_SOURCE_2', 'EXT_SOURCE_3', 'AMT_CREDIT', 'DAYS_BIRTH', 'EXT_SOURCE_1', 'CODE_GENDER_F',
-                         'AMT_ANNUITY']
+                y_all = y_train.replace({0: 'repaid (global)',
+                                         1: 'not repaid (global)'})
+                X_neigh = X_tr_featsel.iloc[nearest_cust_idx]
+                y_neigh = y_train.iloc[nearest_cust_idx].replace({0: 'repaid (neighbors)',
+                                                                  1: 'not repaid (neighbors)'})
+                X_cust = X_tr_featsel.iloc[X_idx: X_idx + 1]
+                main_cols = ['EXT_SOURCE_2', 'EXT_SOURCE_3', 'AMT_CREDIT', 'DAYS_BIRTH', 'EXT_SOURCE_1', 'CODE_GENDER_F',
+                             'AMT_ANNUITY']
 
-            # st.header("Boxplot des principaux features et leur dispersions")
-            # fig, axes = plt.subplots()
-            # st.write(X_cust)
-            # plot_boxplot_var_by_target(X_tr_featsel, y_all, X_neigh, y_neigh, X_cust,
-            #                            main_cols, figsize=(15, 4))
-            # st.pyplot(fig)
+                # st.header("Boxplot des principaux features et leur dispersions")
+                # fig, axes = plt.subplots()
+                # st.write(X_cust)
+                # plot_boxplot_var_by_target(X_tr_featsel, y_all, X_neigh, y_neigh, X_cust,
+                #                            main_cols, figsize=(15, 4))
+                # st.pyplot(fig)
 
-            # st.header("Shap analyse (local)")
-            #
-            # explainer = shap.TreeExplainer(clf_step)
-            # X_cust_neigh = pd.concat([X_neigh,
-            #                           X_cust.to_frame(customer_idx).T],
-            #                          axis=0)
-            #
-            # shap_val_neigh = explainer.shap_values(X_cust_neigh)
-            # expected_value = explainer.expected_value[1]
-            #
-            # shap_values = shap_val_neigh
-            #
-            # # vals= np.abs(shap_values).mean(0)
-            # vals = np.abs(shap_values[1]).mean(0)
-            #
-            # feat_imp = pd.DataFrame(list(zip(X_cust_neigh.columns, vals)),
-            #                         columns=['col_name', 'feature_imp']) \
-            #     .sort_values(by=['feature_imp'], ascending=False)
-            #
-            # most_imp_10_cols = feat_imp.iloc[:10]['col_name'].values
-            # shap_values_trans, expected_value_trans = \
-            #     shap_transform_scale(shap_values=explainer.shap_values(X_cust_neigh)[1][-1],
-            #                          expected_value=explainer.expected_value[1],
-            #                          model_prediction=clf_step.predict_proba(X_cust_neigh)[:, 1][-1])
-            # shap.plots._waterfall.waterfall_legacy(expected_value_trans,  # expected_value,
-            #                                        shap_values_trans,  # shap_values[1][-1],
-            #                                        X_cust_neigh.values.reshape(-1),
-            #                                        feature_names=X_neigh.columns,
-            #                                        max_display=10, show=False)
-            # plt.gcf().set_size_inches((14, 6))
-            # plt.show()
-            explainerModel = shap.TreeExplainer(clf_step, X_tr_featsel)
-            shap_values_Model = explainerModel.shap_values(X_tr_featsel)
-            # st.write("##", X_idx)
-            # st.write("##", explainerModel.expected_value)
-            # st.write("##", shap_values_Model[X_idx])
-            # st.write("##", X_tr_featsel.iloc[[X_idx]])
+                # st.header("Shap analyse (local)")
+                #
+                # explainer = shap.TreeExplainer(clf_step)
+                # X_cust_neigh = pd.concat([X_neigh,
+                #                           X_cust.to_frame(customer_idx).T],
+                #                          axis=0)
+                #
+                # shap_val_neigh = explainer.shap_values(X_cust_neigh)
+                # expected_value = explainer.expected_value[1]
+                #
+                # shap_values = shap_val_neigh
+                #
+                # # vals= np.abs(shap_values).mean(0)
+                # vals = np.abs(shap_values[1]).mean(0)
+                #
+                # feat_imp = pd.DataFrame(list(zip(X_cust_neigh.columns, vals)),
+                #                         columns=['col_name', 'feature_imp']) \
+                #     .sort_values(by=['feature_imp'], ascending=False)
+                #
+                # most_imp_10_cols = feat_imp.iloc[:10]['col_name'].values
+                # shap_values_trans, expected_value_trans = \
+                #     shap_transform_scale(shap_values=explainer.shap_values(X_cust_neigh)[1][-1],
+                #                          expected_value=explainer.expected_value[1],
+                #                          model_prediction=clf_step.predict_proba(X_cust_neigh)[:, 1][-1])
+                # shap.plots._waterfall.waterfall_legacy(expected_value_trans,  # expected_value,
+                #                                        shap_values_trans,  # shap_values[1][-1],
+                #                                        X_cust_neigh.values.reshape(-1),
+                #                                        feature_names=X_neigh.columns,
+                #                                        max_display=10, show=False)
+                # plt.gcf().set_size_inches((14, 6))
+                # plt.show()
+                explainerModel = shap.TreeExplainer(clf_step, X_tr_featsel)
 
-            # st.write(shap.force_plot(explainerModel.expected_value, shap_values_Model[X_idx], X_tr_featsel.iloc[[X_idx]]))
-            st_shap(shap.force_plot(explainerModel.expected_value, shap_values_Model[X_idx], X_tr_featsel.iloc[[X_idx]]))
+                shap_values_Model = explainerModel.shap_values(X_tr_featsel)
+                # st.write("##", X_idx)
+                # st.write("##", explainerModel.expected_value)
+                # st.write("##", shap_values_Model[X_idx])
+                # st.write("##", X_tr_featsel.iloc[[X_idx]])
 
-            shap.plots.waterfall(shap_values_Model[X_idx])
-            plt.gcf()
-            st.pyplot(plt.gcf())
+                st.header("Graphique de force plot")
+
+                # st.write(shap.force_plot(explainerModel.expected_value, shap_values_Model[X_idx], X_tr_featsel.iloc[[X_idx]]))
+                st_shap(shap.force_plot(explainerModel.expected_value, shap_values_Model[X_idx], X_tr_featsel.iloc[[X_idx]]))
+
+                st.header("Water fall graphique")
+                st_shap(shap.waterfall_plot(shap_values_Model[X_idx]))
+                # plt.gcf()
+                # st.pyplot(plt.gcf())
 
 
 if __name__ == '__main__':
