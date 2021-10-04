@@ -438,7 +438,8 @@ def main():
                 st_shap(shap.force_plot(explainerModel.expected_value, shap_values_Model[X_idx], X_tr_featsel.iloc[[X_idx]]))
 
                 st.header("Water fall graphique")
-                st_shap(shap.waterfall_plot(shap_values_Model[X_idx]))
+                # st_shap(shap.waterfall_plot(shap_values_Model[X_idx]))
+                st_shap(shap.plots.waterfall(shap_values_Model[X_idx]))
                 # plt.gcf()
                 # st.pyplot(plt.gcf())
 
