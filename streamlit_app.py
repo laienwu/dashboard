@@ -6,6 +6,7 @@ import pandas as pd
 import seaborn as sns
 import shap
 import streamlit as st
+import streamlit.components.v1 as components
 import xgboost as xgboost
 from imblearn.pipeline import Pipeline
 from scipy.special import expit
@@ -94,22 +95,22 @@ def main():
         sns.boxplot(data=df_melt_all, x='variables', y='values', hue='TARGET', linewidth=1,
                     width=0.4, palette=['tab:green', 'tab:red'], showfliers=False, saturation=0.5,
                     ax=ax)
-        #
-        # # 20 nearest neighbors
-        # df_melt_neigh = df_neigh.reset_index()
-        # df_melt_neigh.columns = ['index'] + list(df_melt_neigh.columns)[1:]
-        # df_melt_neigh = df_melt_neigh.melt(id_vars=['index', 'TARGET'],  # SK_ID_CURR
-        #                                    value_vars=main_cols,
-        #                                    var_name="variables",
-        #                                    value_name="values")
-        # sns.swarmplot(data=df_melt_neigh, x='variables', y='values', hue='TARGET', linewidth=1,
-        #               palette=['darkgreen', 'darkred'], marker='o', edgecolor='k', ax=ax)
-        #
-        # # applicant customer
-        # df_melt_cust = df_cust.rename(columns={'index': "variables"})
-        # sns.swarmplot(data=df_melt_cust, x='variables', y='values', linewidth=1, color='y',
-        #               marker='o', size=10, edgecolor='k', label='applicant customer', ax=ax)
 
+        # 20 nearest neighbors
+        df_melt_neigh = df_neigh.reset_index()
+        df_melt_neigh.columns = ['index'] + list(df_melt_neigh.columns)[1:]
+        df_melt_neigh = df_melt_neigh.melt(id_vars=['index', 'TARGET'],  # SK_ID_CURR
+                                           value_vars=main_cols,
+                                           var_name="variables",
+                                           value_name="values")
+        sns.swarmplot(data=df_melt_neigh, x='variables', y='values', hue='TARGET', linewidth=1,
+                      palette=['darkgreen', 'darkred'], marker='o', edgecolor='k', ax=ax)
+
+        # applicant customer
+        df_melt_cust = df_cust.rename(columns={'index': "variables"})
+        sns.swarmplot(data=df_melt_cust, x='variables', y='values', linewidth=1, color='y',
+                      marker='o', size=10, edgecolor='k', label='applicant customer', ax=ax)
+        #
         # legend
         h, _ = ax.get_legend_handles_labels()
         ax.legend(handles=h[:5])
@@ -126,6 +127,10 @@ def main():
         distance_coefficient = original_explanation_distance / distance_to_explain
         shap_values_transformed = shap_values / distance_coefficient
         return shap_values_transformed, expected_value_transformed
+
+    def st_shap(plot, height=None):
+        shap_html = f"<head>{shap.getjs()}</head><body>{plot.html()}</body>"
+        components.html(shap_html, height=height)
 
     # @st.cache
     # def shap_plot(model,X_tr,id):
@@ -426,13 +431,11 @@ def main():
             st.write("##", X_tr_featsel.iloc[[X_idx]])
 
             # st.write(shap.force_plot(explainerModel.expected_value, shap_values_Model[X_idx], X_tr_featsel.iloc[[X_idx]]))
-            # shap.force_plot(explainer.expected_value, shap_values(X_idx), X_tr_featsel.iloc[[X_idx]])
-            # st_write.pyplot(fig)
-            #
+            st_shap(shap.force_plot(explainerModel.expected_value, shap_values_Model[X_idx], X_tr_featsel.iloc[[X_idx]]))
 
-            shap.plots.waterfall(shap_values_Model[X_idx])
-            plt.gcf()
-            st.pyplot(plt.gcf())
+            # shap.plots.waterfall(shap_values_Model[X_idx])
+            # plt.gcf()
+            # st.pyplot(plt.gcf())
 
 
 if __name__ == '__main__':
