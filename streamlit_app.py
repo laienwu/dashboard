@@ -425,17 +425,17 @@ def main():
             # plt.show()
             explainerModel = shap.TreeExplainer(clf_step, X_tr_featsel)
             shap_values_Model = explainerModel.shap_values(X_tr_featsel)
-            st.write("##", X_idx)
-            st.write("##", explainerModel.expected_value)
-            st.write("##", shap_values_Model[X_idx])
-            st.write("##", X_tr_featsel.iloc[[X_idx]])
+            # st.write("##", X_idx)
+            # st.write("##", explainerModel.expected_value)
+            # st.write("##", shap_values_Model[X_idx])
+            # st.write("##", X_tr_featsel.iloc[[X_idx]])
 
             # st.write(shap.force_plot(explainerModel.expected_value, shap_values_Model[X_idx], X_tr_featsel.iloc[[X_idx]]))
             st_shap(shap.force_plot(explainerModel.expected_value, shap_values_Model[X_idx], X_tr_featsel.iloc[[X_idx]]))
 
-            # shap.plots.waterfall(shap_values_Model[X_idx])
-            # plt.gcf()
-            # st.pyplot(plt.gcf())
+            shap.plots.waterfall(shap_values_Model[X_idx])
+            plt.gcf()
+            st.pyplot(plt.gcf())
 
 
 if __name__ == '__main__':
