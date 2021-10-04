@@ -36,7 +36,6 @@ def main():
         tmp = tmp.rename(columns={'Row': 'Features'})
         return tmp[['Features', 'Description']]
 
-    @st.cache
     def get_model(path):
         return pd.read_pickle(path)
 
@@ -81,7 +80,7 @@ def main():
                                    main_cols, figsize=(15, 4)):
         df_all = pd.concat([X_all[main_cols], y_all.to_frame(name='TARGET')], axis=1)
         df_neigh = pd.concat([X_neigh[main_cols], y_neigh.to_frame(name='TARGET')], axis=1)
-        df_cust = X_cust[main_cols].to_frame('values').reset_index()
+        df_cust = X_cust[main_cols].reset_index()
 
         fig, ax = plt.subplots(figsize=figsize)
 
@@ -95,21 +94,21 @@ def main():
         sns.boxplot(data=df_melt_all, x='variables', y='values', hue='TARGET', linewidth=1,
                     width=0.4, palette=['tab:green', 'tab:red'], showfliers=False, saturation=0.5,
                     ax=ax)
-
-        # 20 nearest neighbors
-        df_melt_neigh = df_neigh.reset_index()
-        df_melt_neigh.columns = ['index'] + list(df_melt_neigh.columns)[1:]
-        df_melt_neigh = df_melt_neigh.melt(id_vars=['index', 'TARGET'],  # SK_ID_CURR
-                                           value_vars=main_cols,
-                                           var_name="variables",
-                                           value_name="values")
-        sns.swarmplot(data=df_melt_neigh, x='variables', y='values', hue='TARGET', linewidth=1,
-                      palette=['darkgreen', 'darkred'], marker='o', edgecolor='k', ax=ax)
-
-        # applicant customer
-        df_melt_cust = df_cust.rename(columns={'index': "variables"})
-        sns.swarmplot(data=df_melt_cust, x='variables', y='values', linewidth=1, color='y',
-                      marker='o', size=10, edgecolor='k', label='applicant customer', ax=ax)
+        #
+        # # 20 nearest neighbors
+        # df_melt_neigh = df_neigh.reset_index()
+        # df_melt_neigh.columns = ['index'] + list(df_melt_neigh.columns)[1:]
+        # df_melt_neigh = df_melt_neigh.melt(id_vars=['index', 'TARGET'],  # SK_ID_CURR
+        #                                    value_vars=main_cols,
+        #                                    var_name="variables",
+        #                                    value_name="values")
+        # sns.swarmplot(data=df_melt_neigh, x='variables', y='values', hue='TARGET', linewidth=1,
+        #               palette=['darkgreen', 'darkred'], marker='o', edgecolor='k', ax=ax)
+        #
+        # # applicant customer
+        # df_melt_cust = df_cust.rename(columns={'index': "variables"})
+        # sns.swarmplot(data=df_melt_cust, x='variables', y='values', linewidth=1, color='y',
+        #               marker='o', size=10, edgecolor='k', label='applicant customer', ax=ax)
 
         # legend
         h, _ = ax.get_legend_handles_labels()
@@ -155,7 +154,6 @@ def main():
     # df = pd.read_pickle('./data/shorted_data.pickle')
     filename = file_selector('./data/')
     df = pd.read_csv(filename)
-    st.write(df.columns)
     clf = get_model(URL + '/models/clf_model.pickle')
 
     # SK_IDS = ['Overview'] + random.sample(get_sk_id_list(df), 20)
@@ -382,44 +380,44 @@ def main():
             main_cols = ['EXT_SOURCE_2', 'EXT_SOURCE_3', 'AMT_CREDIT', 'DAYS_BIRTH', 'EXT_SOURCE_1', 'CODE_GENDER_F',
                          'AMT_ANNUITY']
 
-            # st.header("Boxplot des principaux features et leur dispersions")
-            # fig, axes = plt.subplots()
-            # plot_boxplot_var_by_target(X_tr_featsel, y_all, X_neigh, y_neigh, X_cust,
-            #                            main_cols, figsize=(15, 4))
-            # st.pyplot(fig)
+            st.header("Boxplot des principaux features et leur dispersions")
+            fig, axes = plt.subplots()
+            st.write(X_cust)
+            plot_boxplot_var_by_target(X_tr_featsel, y_all, X_neigh, y_neigh, X_cust,
+                                       main_cols, figsize=(15, 4))
+            st.pyplot(fig)
 
-            # st.header("Shap analyse (local)")
-            #
-            # explainer = shap.TreeExplainer(clf_step)
-            # X_cust_neigh = pd.concat([X_neigh,
-            #                           X_cust.to_frame(customer_idx).T],
-            #                          axis=0)
-            #
-            #
-            # shap_val_neigh = explainer.shap_values(X_cust_neigh)
-            # expected_value = explainer.expected_value[1]
-            #
-            # shap_values = shap_val_neigh
-            #
-            # # vals= np.abs(shap_values).mean(0)
-            # vals = np.abs(shap_values[1]).mean(0)
-            #
-            # feat_imp = pd.DataFrame(list(zip(X_cust_neigh.columns, vals)),
-            #                         columns=['col_name', 'feature_imp']) \
-            #     .sort_values(by=['feature_imp'], ascending=False)
-            #
-            # most_imp_10_cols = feat_imp.iloc[:10]['col_name'].values
-            # shap_values_trans, expected_value_trans = \
-            #     shap_transform_scale(shap_values=explainer.shap_values(X_cust_neigh)[1][-1],
-            #                          expected_value=explainer.expected_value[1],
-            #                          model_prediction=clf_step.predict_proba(X_cust_neigh)[:, 1][-1])
-            # shap.plots._waterfall.waterfall_legacy(expected_value_trans,  # expected_value,
-            #                                        shap_values_trans,  # shap_values[1][-1],
-            #                                        X_cust_neigh.values.reshape(-1),
-            #                                        feature_names=X_neigh.columns,
-            #                                        max_display=10, show=False)
-            # plt.gcf().set_size_inches((14, 6))
-            # plt.show()
+            st.header("Shap analyse (local)")
+
+            explainer = shap.TreeExplainer(clf_step)
+            X_cust_neigh = pd.concat([X_neigh,
+                                      X_cust.to_frame(customer_idx).T],
+                                     axis=0)
+
+            shap_val_neigh = explainer.shap_values(X_cust_neigh)
+            expected_value = explainer.expected_value[1]
+
+            shap_values = shap_val_neigh
+
+            # vals= np.abs(shap_values).mean(0)
+            vals = np.abs(shap_values[1]).mean(0)
+
+            feat_imp = pd.DataFrame(list(zip(X_cust_neigh.columns, vals)),
+                                    columns=['col_name', 'feature_imp']) \
+                .sort_values(by=['feature_imp'], ascending=False)
+
+            most_imp_10_cols = feat_imp.iloc[:10]['col_name'].values
+            shap_values_trans, expected_value_trans = \
+                shap_transform_scale(shap_values=explainer.shap_values(X_cust_neigh)[1][-1],
+                                     expected_value=explainer.expected_value[1],
+                                     model_prediction=clf_step.predict_proba(X_cust_neigh)[:, 1][-1])
+            shap.plots._waterfall.waterfall_legacy(expected_value_trans,  # expected_value,
+                                                   shap_values_trans,  # shap_values[1][-1],
+                                                   X_cust_neigh.values.reshape(-1),
+                                                   feature_names=X_neigh.columns,
+                                                   max_display=10, show=False)
+            plt.gcf().set_size_inches((14, 6))
+            plt.show()
             explainerModel = shap.TreeExplainer(clf_step, X_tr_featsel)
             shap_values_Model = explainerModel.shap_values(X_tr_featsel)
             st.write("##", X_idx)
